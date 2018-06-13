@@ -4,7 +4,7 @@ synopsis:            Servant Dhall content-type
 description:
   Servant Dhall bindings.
   . 
-  Provides @MineRender@ and @MimeUnrender@ instances.
+  Provides @MimeRender@ and @MimeUnrender@ instances.
   So you can accept and return Dhall expressions.
   .
   /Note:/ Reading (and evaluating) Dhall expressions from untrust4ed source is a security risk.
