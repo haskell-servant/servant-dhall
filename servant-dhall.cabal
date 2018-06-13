@@ -7,7 +7,7 @@ description:
   Provides @MimeRender@ and @MimeUnrender@ instances.
   So you can accept and return Dhall expressions.
   .
-  /Note:/ Reading (and evaluating) Dhall expressions from untrust4ed source is a security risk.
+  /Note:/ Reading (and evaluating) Dhall expressions from untrusted sources is a security risk.
 homepage:            http://haskell-servant.readthedocs.org/
 license:             BSD3
 license-file:        LICENSE
