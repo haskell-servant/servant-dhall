@@ -22,6 +22,8 @@ tested-with:
   GHC==8.0.2,
   GHC==8.2.2,
   GHC==8.4.3
+extra-source-files:
+  README.md
 
 source-repository head
   type: git
