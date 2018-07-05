@@ -1,16 +1,3 @@
-0.10
-----
+# 0.1.0.1
 
-* `EncodeOpts` and `DecodeOpts` merged into just `EncodeOpts`.
-* Add `TabSeparatedOpts` for `text/tab-separated-values`.
-
-0.9
----
-
-* Refactorerd `CSV`' type.
-
-0.8
----
-
-* Removed DefaultEncodeOpts and DefaultDecodeOpts in favor of a single
-  (new) DefaultOpts
+- Use `dhall >=1.15.1 && <0.16`

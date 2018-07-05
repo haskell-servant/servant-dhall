@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP                   #-}
 {-# LANGUAGE DataKinds             #-}
 {-# LANGUAGE DeriveDataTypeable    #-}
 {-# LANGUAGE FlexibleInstances     #-}
@@ -31,10 +32,10 @@ import           Data.Proxy
 import           Data.Text.Encoding.Error
                  (lenientDecode)
 import qualified Data.Text.Lazy                          as TL
-import qualified Data.Text.Lazy.Builder                  as TLB
 import qualified Data.Text.Lazy.Encoding                 as TLE
 import           Data.Text.Prettyprint.Doc
-                 (defaultLayoutOptions, layoutPretty, layoutSmart, line)
+                 (Pretty (pretty), defaultLayoutOptions, layoutPretty,
+                 layoutSmart, line)
 import           Data.Text.Prettyprint.Doc.Render.String
                  (renderString)
 import           Data.Text.Prettyprint.Doc.Render.Text
@@ -49,11 +50,7 @@ import           Dhall
 import qualified Dhall.Core
 import           Dhall.Parser
                  (exprFromText, unwrap)
-import           Dhall.Pretty
-                 (prettyExpr)
 import qualified Dhall.TypeCheck
-import           Formatting.Buildable
-                 (Buildable (..))
 import qualified Network.HTTP.Media                      as M
 import           Servant.API
                  (Accept (..), MimeRender (..), MimeUnrender (..))
@@ -75,7 +72,7 @@ instance (Inject a, HasInterpretOptions opts) => MimeRender (DHALL' opts) a wher
         $ renderLazy
         $ layoutSmart defaultLayoutOptions
         $ (`mappend` line)
-        $ prettyExpr
+        $ pretty
         $ embed ty x
       where
         ty :: InputType a
@@ -88,7 +85,7 @@ instance (Inject a, HasInterpretOptions opts) => MimeRender (DHALL' opts) a wher
 instance (Interpret a, HasInterpretOptions opts) => MimeUnrender (DHALL' opts) a where
     mimeUnrender _ lbs = do
         expr0  <- firstEither showParseError $ exprFromText "(input)" te
-        expr1  <- for expr0 $ \i -> Left $ "Import found: " ++ fromBuildable i
+        expr1  <- for expr0 $ \i -> Left $ "Import found: " ++ ppExpr i
         tyExpr <- firstEither showTypeError $ Dhall.TypeCheck.typeOf expr1
         unless (Dhall.Core.judgmentallyEqual tyExpr $ expected ty) $
             Left $ "Expected and actual types don't match : "
@@ -98,17 +95,16 @@ instance (Interpret a, HasInterpretOptions opts) => MimeUnrender (DHALL' opts) a
             Nothing -> Left "Invalid type"
       where
         showParseError = MP.parseErrorPretty . unwrap
-        showTypeError e = "Type error: " ++ fromBuildable e
+        showTypeError e = "Type error: " ++ ppExpr e
 
-        te = TLE.decodeUtf8With lenientDecode lbs
+        te = TL.toStrict $
+            TLE.decodeUtf8With lenientDecode lbs
 
         ty :: Type a
         ty = autoWith (interpretOptions (Proxy :: Proxy opts))
 
-        ppExpr = renderString . layoutPretty defaultLayoutOptions .  prettyExpr
-
-        fromBuildable :: Buildable b => b -> String
-        fromBuildable = TL.unpack . TLB.toLazyText . build
+        ppExpr :: Pretty pp => pp -> String
+        ppExpr = renderString . layoutPretty defaultLayoutOptions .  pretty
 
 firstEither :: (a -> b) -> Either a c -> Either b c
 firstEither f (Left a)  = Left (f a)
