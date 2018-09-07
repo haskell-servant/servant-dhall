@@ -112,6 +112,9 @@ script:
   # Constraint sets
   - rm -rf cabal.project.local
 
+  # Constraint set dhall-1.17
+  - if [ $HCNUMVER -ge 71000 ] && [ $HCNUMVER -lt 80400 ]; then cabal new-build -w ${HC} --disable-tests --disable-benchmarks --constraint='dhall ==1.17.*' all; else echo skipping...; fi
+
   # Constraint set dhall-1.16
   - if [ $HCNUMVER -ge 71000 ] && [ $HCNUMVER -lt 80400 ]; then cabal new-build -w ${HC} --disable-tests --disable-benchmarks --constraint='dhall ==1.16.*' all; else echo skipping...; fi
 

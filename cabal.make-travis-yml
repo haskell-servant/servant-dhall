@@ -1,3 +1,7 @@
+constraint-set dhall-1.17
+  ghc: >= 7.10 && <8.4
+  constraints: dhall ==1.17.*
+
 constraint-set dhall-1.16
   ghc: >= 7.10 && <8.4
   constraints: dhall ==1.16.*
