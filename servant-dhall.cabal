@@ -1,7 +1,7 @@
 cabal-version:       >=1.10
 name:                servant-dhall
 version:             0.1.0.1
-x-revision:          1
+x-revision:          3
 
 synopsis:            Servant Dhall content-type
 description:
