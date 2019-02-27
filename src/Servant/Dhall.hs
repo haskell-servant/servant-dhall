@@ -90,11 +90,11 @@ instance (Interpret a, HasInterpretOptions opts) => MimeUnrender (DHALL' opts) a
         unless (Dhall.Core.judgmentallyEqual tyExpr $ expected ty) $
             Left $ "Expected and actual types don't match : "
                 ++ ppExpr (expected ty) ++ " /= " ++ ppExpr tyExpr
-        case extract ty (Dhall.Core.normalizeWith (const Nothing) expr1) of
+        case extract ty (Dhall.Core.normalizeWith (const (pure Nothing)) expr1) of
             Just x  -> Right x
             Nothing -> Left "Invalid type"
       where
-        showParseError = MP.parseErrorPretty . unwrap
+        showParseError = MP.errorBundlePretty . unwrap
         showTypeError e = "Type error: " ++ ppExpr e
 
         te = TL.toStrict $
