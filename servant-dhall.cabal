@@ -15,12 +15,14 @@ license:            BSD3
 license-file:       LICENSE
 author:             Servant Contributors
 maintainer:         haskell-servant-maintainers@googlegroups.com
-copyright:          2018 Servant Contributors
+copyright:          2018-2019 Servant Contributors
 category:           Web, Servant, Dhall
 build-type:         Simple
 bug-reports:        http://github.com/haskell-servant/servant-dhall/issues
 tested-with:        GHC ==8.6.3 || ==8.4.3 || ==8.0.2 || ==8.2.2
-extra-source-files: README.md
+extra-source-files:
+  README.md
+  CHANGELOG.md
 
 source-repository head
   type:     git
