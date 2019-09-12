@@ -27,6 +27,8 @@ import           Prelude.Compat
 
 import           Control.Monad
                  (unless)
+import           Data.Either.Validation
+                 (Validation (..))
 import           Data.Proxy
                  (Proxy (..))
 import           Data.Text.Encoding.Error
@@ -90,9 +92,9 @@ instance (Interpret a, HasInterpretOptions opts) => MimeUnrender (DHALL' opts) a
         unless (Dhall.Core.judgmentallyEqual tyExpr $ expected ty) $
             Left $ "Expected and actual types don't match : "
                 ++ ppExpr (expected ty) ++ " /= " ++ ppExpr tyExpr
-        case extract ty (Dhall.Core.normalizeWith (const (pure Nothing)) expr1) of
-            Just x  -> Right x
-            Nothing -> Left "Invalid type"
+        case extract ty (Dhall.Core.normalizeWith Nothing expr1) of
+             Success x -> Right x
+             Failure _ -> Left "Invalid type"
       where
         showParseError = MP.errorBundlePretty . unwrap
         showTypeError e = "Type error: " ++ ppExpr e
