@@ -18,7 +18,7 @@
 module Servant.Dhall (
     DHALL,
     DHALL',
-    HasInterpretOptions,
+    HasInterpretOptions(..),
     DefaultInterpretOptions,
     ) where
 
@@ -47,8 +47,9 @@ import           Data.Traversable
 import           Data.Typeable
                  (Typeable)
 import           Dhall
-                 (Inject (..), InputType (..), Interpret (..),
-                 InterpretOptions, Type (..), defaultInterpretOptions)
+                 (Inject, InputType (..), Interpret,
+                 InterpretOptions, Type (..), autoWith,
+                 defaultInterpretOptions, injectWith)
 import qualified Dhall.Core
 import           Dhall.Parser
                  (exprFromText, unwrap)
