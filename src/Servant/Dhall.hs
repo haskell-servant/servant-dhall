@@ -47,8 +47,8 @@ import           Data.Traversable
 import           Data.Typeable
                  (Typeable)
 import           Dhall
-                 (Inject (..), InputType (..), Interpret (..),
-                 InterpretOptions, Type (..), defaultInterpretOptions)
+                 (ToDhall (..), Encoder (..), FromDhall (..),
+                 InterpretOptions, Decoder (..), defaultInterpretOptions)
 import qualified Dhall.Core
 import           Dhall.Parser
                  (exprFromText, unwrap)
@@ -68,7 +68,7 @@ instance Accept (DHALL' opts) where
 -- Encoding
 -------------------------------------------------------------------------------
 
-instance (Inject a, HasInterpretOptions opts) => MimeRender (DHALL' opts) a where
+instance (ToDhall a, HasInterpretOptions opts) => MimeRender (DHALL' opts) a where
     mimeRender _ x
         = TLE.encodeUtf8
         $ renderLazy
@@ -77,14 +77,14 @@ instance (Inject a, HasInterpretOptions opts) => MimeRender (DHALL' opts) a wher
         $ pretty
         $ embed ty x
       where
-        ty :: InputType a
+        ty :: Encoder a
         ty = injectWith (interpretOptions (Proxy :: Proxy opts))
 
 -------------------------------------------------------------------------------
 -- Decoding
 -------------------------------------------------------------------------------
 
-instance (Interpret a, HasInterpretOptions opts) => MimeUnrender (DHALL' opts) a where
+instance (FromDhall a, HasInterpretOptions opts) => MimeUnrender (DHALL' opts) a where
     mimeUnrender _ lbs = do
         expr0  <- firstEither showParseError $ exprFromText "(input)" te
         expr1  <- for expr0 $ \i -> Left $ "Import found: " ++ ppExpr i
@@ -102,7 +102,7 @@ instance (Interpret a, HasInterpretOptions opts) => MimeUnrender (DHALL' opts) a
         te = TL.toStrict $
             TLE.decodeUtf8With lenientDecode lbs
 
-        ty :: Type a
+        ty :: Decoder  a
         ty = autoWith (interpretOptions (Proxy :: Proxy opts))
 
         ppExpr :: Pretty pp => pp -> String
