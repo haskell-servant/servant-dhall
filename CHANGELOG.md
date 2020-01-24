@@ -1,3 +1,8 @@
+# 0.3
+
+- Use `dhall ==1.29`
+- Support servant-0.17
+
 # 0.2
 
 - Use `dhall ==1.26`
