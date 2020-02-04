@@ -18,7 +18,7 @@
 module Servant.Dhall (
     DHALL,
     DHALL',
-    HasInterpretOptions,
+    HasInterpretOptions(..),
     DefaultInterpretOptions,
     ) where
 
