@@ -19,7 +19,7 @@ copyright:          2018-2019 Servant Contributors
 category:           Web, Servant, Dhall
 build-type:         Simple
 bug-reports:        http://github.com/haskell-servant/servant-dhall/issues
-tested-with:        GHC ==8.0.2 || ==8.2.2 || ==8.4.3 || ==8.6.5 || ==8.8.2
+tested-with:        GHC ==8.0.2 || ==8.2.2 || ==8.4.4 || ==8.6.5 || ==8.8.4 || ==8.10.2
 extra-source-files:
   README.md
   CHANGELOG.md
