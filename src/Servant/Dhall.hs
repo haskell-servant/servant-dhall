@@ -6,6 +6,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings     #-}
 {-# LANGUAGE ScopedTypeVariables   #-}
+{-# LANGUAGE TypeApplications      #-}
 
 -- | A @DHALL@ empty datatype with `MimeRender` and `MimeUnrender` instances for
 -- /Dhall/'s 'Interpret' and 'Inject' classes.
@@ -28,7 +29,9 @@ import           Prelude.Compat
 import           Control.Monad
                  (unless)
 import           Data.Either.Validation
-                 (Validation (..))
+                 (Validation (..), validationToEither)
+import           Data.Function
+                 ((&))
 import           Data.Proxy
                  (Proxy (..))
 import           Data.Text.Encoding.Error
@@ -47,7 +50,7 @@ import           Data.Traversable
 import           Data.Typeable
                  (Typeable)
 import           Dhall
-                 (ToDhall (..), Encoder (..), FromDhall (..),
+                 (auto, ToDhall (..), Encoder (..), FromDhall (..), inject,
                  InterpretOptions, Decoder (..), defaultInterpretOptions)
 import qualified Dhall.Core
 import           Dhall.Parser
@@ -68,31 +71,29 @@ instance Accept (DHALL' opts) where
 -- Encoding
 -------------------------------------------------------------------------------
 
-instance (ToDhall a, HasInterpretOptions opts) => MimeRender (DHALL' opts) a where
+instance ToDhall a => MimeRender (DHALL' opts) a where
     mimeRender _ x
         = TLE.encodeUtf8
         $ renderLazy
         $ layoutSmart defaultLayoutOptions
         $ (`mappend` line)
         $ pretty
-        $ embed ty x
-      where
-        ty :: Encoder a
-        ty = injectWith (interpretOptions (Proxy :: Proxy opts))
+        $ embed inject x
 
 -------------------------------------------------------------------------------
 -- Decoding
 -------------------------------------------------------------------------------
 
-instance (FromDhall a, HasInterpretOptions opts) => MimeUnrender (DHALL' opts) a where
+instance FromDhall a => MimeUnrender (DHALL' opts) a where
     mimeUnrender _ lbs = do
         expr0  <- firstEither showParseError $ exprFromText "(input)" te
         expr1  <- for expr0 $ \i -> Left $ "Import found: " ++ ppExpr i
         tyExpr <- firstEither showTypeError $ Dhall.TypeCheck.typeOf expr1
-        unless (Dhall.Core.judgmentallyEqual tyExpr $ expected ty) $
+        tyExprExpected <- expected (auto @a) & validationToEither & firstEither show
+        unless (Dhall.Core.judgmentallyEqual tyExpr $ tyExprExpected) $
             Left $ "Expected and actual types don't match : "
-                ++ ppExpr (expected ty) ++ " /= " ++ ppExpr tyExpr
-        case extract ty (Dhall.Core.normalizeWith Nothing expr1) of
+                ++ ppExpr tyExprExpected ++ " /= " ++ ppExpr tyExpr
+        case extract auto (Dhall.Core.normalizeWith Nothing expr1) of
              Success x -> Right x
              Failure _ -> Left "Invalid type"
       where
@@ -101,9 +102,6 @@ instance (FromDhall a, HasInterpretOptions opts) => MimeUnrender (DHALL' opts) a
 
         te = TL.toStrict $
             TLE.decodeUtf8With lenientDecode lbs
-
-        ty :: Decoder  a
-        ty = autoWith (interpretOptions (Proxy :: Proxy opts))
 
         ppExpr :: Pretty pp => pp -> String
         ppExpr = renderString . layoutPretty defaultLayoutOptions .  pretty
