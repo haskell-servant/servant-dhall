@@ -1,3 +1,7 @@
+# 0.3.1
+
+- Expose HasInterpretOptions(interpretOptions) so that custom instances of HasInterpretOptions can be used.
+
 # 0.3
 
 - Use `dhall ==1.29`
